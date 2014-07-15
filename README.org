@@ -1,4 +1,4 @@
-* cpputils-cmake.el (version 0.4.9)
+* cpputils-cmake.el (version 0.4.10)
 cpputils-cmake automatically enable real time syntax check (Flymake) and IntelliSense (auto-complete+auto-complete-clang, company-mode) if you use [[http://www.cmake.org][CMake]].
 
 It does all the configuration dirty job *automatically* for you. So you can use [[http://flymake.sourceforge.net/][Flymake]], [[https://github.com/flycheck/flycheck][Flycheck]], [[http://cx4a.org/software/auto-complete/][auto-complete]], [[https://github.com/brianjcj/auto-complete-clang][auto-complete-clang]], [[https://github.com/company-mode/company-mode][company-mode]], [[http://www.emacswiki.org/emacs/CompileCommand][compile]], ff-find-other-file (if you press `C-x C-o` in C/C++ file, ff-find-other-file will open *correct* header file under cursor) with almost no configuration.
@@ -58,9 +58,14 @@ If you use another directory name like "mybuild" instead of "build", you must ad
 #+END_SRC
 
 ** flymake
-Open C++ file. Run "M-x flymake-mode". Please note all commands are availble *ONLY when you editing/debugging C/C++ code!*
+Open C++ file. Run "M-x flymake-mode". Please note all commands are available *ONLY when you editing/debugging C/C++ code!*
 
 Now typing some random C++ code and watch the real time hint on your syntax errors.
+
+If you don't want to use flymake, you can tell cpputils-cmake NOT to create Makefile for flyemake by inserting below code into ~/.emacs:
+#+BEGIN_SRC elisp
+(setq cppcm-write-flymake-makefile nil)
+#+END_SRC
 ** flycheck
 See [[https://github.com/flycheck/flycheck]] for flycheck setup. No set up needed here.
 ** compile
@@ -88,6 +93,11 @@ Press the hot key `C-x C-o` or `M-x ff-find-other-file`. The corresponding heade
 This is the default feature of Emacs. What cpputils-cmake does is set up the directories of those header files for you automatically so that the header files could be found by Emacs.
 
 * Tips
+** Use "relative/path" instead of "./relative/path" in CMakeLists.txt
+Cmake will convert all the relative path to full path by appending parent directory.
+
+"./relative/path" will be converted to "/home/username/myproj/./relative/path". cpputils-cmake will still work in this case, but Emacs itself has some issue to search C/C++ header file under those containing-dot-character path.
+
 ** avoid scanning when opening system header files
 cpputils-cmake scanning is light weight enough so below code is *optional*:
 #+BEGIN_SRC elisp
