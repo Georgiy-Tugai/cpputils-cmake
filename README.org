@@ -93,11 +93,6 @@ Press the hot key `C-x C-o` or `M-x ff-find-other-file`. The corresponding heade
 This is the default feature of Emacs. What cpputils-cmake does is set up the directories of those header files for you automatically so that the header files could be found by Emacs.
 
 * Tips
-** Use "relative/path" instead of "./relative/path" in CMakeLists.txt
-Cmake will convert all the relative path to full path by appending parent directory.
-
-"./relative/path" will be converted to "/home/username/myproj/./relative/path". cpputils-cmake will still work in this case, but Emacs itself has some issue to search C/C++ header file under those containing-dot-character path.
-
 ** avoid scanning when opening system header files
 cpputils-cmake scanning is light weight enough so below code is *optional*:
 #+BEGIN_SRC elisp

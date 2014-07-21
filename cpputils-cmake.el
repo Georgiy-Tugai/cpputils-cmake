@@ -35,7 +35,7 @@
 
 (defvar cppcm-build-dir nil "The full path of build directory")
 (defvar cppcm-src-dir nil "The full path of root source directory")
-(defvar cppcm-include-dirs nil "Value example: (\"-I/usr/src/include\" \"-I./inc\")")
+(defvar cppcm-include-dirs nil "Value example: (\"-I/usr/src/include\")")
 (defvar cppcm-preprocess-defines nil "Value example: (\"-DNDEBUG\" \"-D_WXGTK_\")")
 
 (defvar cppcm-hash (make-hash-table :test 'equal))
@@ -432,7 +432,16 @@ White space here is any of: space, tab, emacs newline (line feed, ASCII 10)."
       (setq c-compiling-flags-list (gethash (cppcm--flags-hashkey dir) cppcm-hash))
       (setq c-flags (nth 0 c-compiling-flags-list))
       (setq c-defines (nth 1 c-compiling-flags-list))
-      (setq cppcm-include-dirs (if c-flags (split-string c-flags "\s+" t)))
+      (when c-clags
+        (setq cppcm-include-dirs (split-string c-flags "\s+" t))
+        (setq cppcm-include-dirs (delq nil
+                                       (mapcar (lambda (str)
+                                                 (if (string-match "^-I *" str)
+                                                     ;; well, make sure the include is absolute path containing NO dot character
+                                                     (concat "-I" (file-truename (replace-regexp-in-string "^-I *" "" str)))
+                                                   str))
+                                               cppcm-include-dirs))
+              ))
       (setq cppcm-preprocess-defines (if c-defines (split-string c-defines "\s+" t)))
       )
     ))
