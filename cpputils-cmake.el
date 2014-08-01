@@ -231,22 +231,34 @@ return (found possible-build-dir build-dir src-dir)"
 White space here is any of: space, tab, emacs newline (line feed, ASCII 10)."
   (replace-regexp-in-string "\\`[ \t\n]*" "" (replace-regexp-in-string "[ \t\n]*\\'" "" string)))
 
-(defun cppcm-trim-compiling-flags (cppflags flag-prefix)
+(defun cppcm-trim-compiling-flags (cppflags)
   (let (tks
-        (next-tk-is-included-dir nil)
+        (flag-prefix "-I")
+        (stripped-prefix "I")
+        (next -tk-is-included-dir nil)
         (v ""))
-    (setq tks (split-string (cppcm-trim-string cppflags) "\s+" t))
+    ;; consider following sample:
+    ;; CXX_FLAGS = -I/Users/cb/wxWidgets-master/include -I"/Users/cb/projs/space nox"    -Wno-write-strings
+    (setq tks (split-string (cppcm-trim-string cppflags) "\s+-" t))
+    (message "tks=%s" tks)
+    ;; rebuild the arguments in one string, append double quote string
     (dolist (tk tks v)
-      (if next-tk-is-included-dir
+      (if next-tk-is-included-dir ;; only for "-isystem"
           (progn
-            (setq v (concat v " " flag-prefix tk))
+            ;; if the path is already wrapped in double quotes
+            (setq v (concat v " " flag-prefix "\"" tk "\""))
             (setq next-tk-is-included-dir nil)
             )
-        (if (string= (substring tk 0 2) flag-prefix)
-            (setq v (concat v " " tk))
-          ;; corner case for "-I"
-          (if (string= tk "-isystem") (setq next-tk-is-included-dir t))
-          )))
+        (cond
+         ((string= (substring tk 0 2) flag-prefix)
+          (setq v (concat v " \"" tk "\"")))
+         ((string= (substring tk 0 1) stripped-prefix)
+          (setq v (concat v " \"" tk "\"")))
+         ((or (string= tk "-isystem") (string= tk "isystem"))
+          (setq next-tk-is-included-dir t))
+         )
+        ))
+    (message "v=%s" v)
     v
   ))
 
@@ -336,10 +348,9 @@ Require the project be compiled successfully at least once."
               )
 
         (setq is-c (if (string= (match-string 1 queried-c-flags) "C_FLAGS") "C" "CXX"))
-        (setq c-flags (cppcm-trim-compiling-flags (match-string 2 queried-c-flags) "-I"))
+        (setq c-flags (cppcm-trim-compiling-flags (match-string 2 queried-c-flags)))
 
         (setq queried-c-defines (cppcm-query-match-line flag-make "\s*\\(CX\\{0,2\\}_DEFINES\\)\s*=\s*\\(.*\\)"))
-        ;; (setq c-defines (cppcm-trim-compiling-flags (match-string 2 queried-c-defines) "-D"))
         ;; just what ever preprocess flag we got
         (setq c-defines (match-string 2 queried-c-defines))
 
