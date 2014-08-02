@@ -501,13 +501,13 @@ Require the project be compiled successfully at least once."
 (defun cppcm-compile-in-current-exe-dir ()
   "compile the executable/library in current directory."
   (interactive)
-  (setq compile-command (concat "make -C " (cppcm-get-exe-dir-path-current-buffer)))
+  (setq compile-command (concat "make -C \"" (cppcm-get-exe-dir-path-current-buffer) "\""))
   (call-interactively 'compile))
 
 (defun cppcm-compile-in-root-build-dir ()
   "compile in build directory"
   (interactive)
-  (setq compile-command (concat "make -C " cppcm-build-dir))
+  (setq compile-command (concat "make -C \"" cppcm-build-dir "\""))
   (call-interactively 'compile))
 
 ;;;###autoload
@@ -602,7 +602,7 @@ by customize `cppcm-compile-list'."
                    (dolist (x inc-dirs) (add-to-list 'cc-search-directories x))
                    ))))
   (when (and cppcm-build-dir (file-exists-p (concat cppcm-build-dir "CMakeCache.txt")))
-    (setq compile-command (concat "make -C " cppcm-build-dir))
+    (setq compile-command (concat "make -C \"" cppcm-build-dir "\""))
     )
   (run-hook-with-args 'cppcm-reload-all-hook)
   )
